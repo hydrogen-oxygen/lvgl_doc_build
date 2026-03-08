@@ -1,0 +1,44 @@
+name: Build PDF and Upload to Release
+
+on:
+  release:
+    types: [published]          # 当发布新 Release 时触发
+  workflow_dispatch:             # 允许手动触发（用于测试）
+
+jobs:
+  build-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'           # 缓存 pip 依赖
+
+      - name: Install Python dependencies
+        run: |
+          pip install sphinx sphinx_rtd_theme   # 根据需要安装主题及其他扩展
+
+      - name: Install TeX Live
+        run: |
+          sudo apt update
+          sudo apt install -y texlive-latex-extra texlive-xetex latexmk
+          # 若需要中文字体支持，可添加 texlive-lang-chinese
+          # sudo apt install -y texlive-lang-chinese
+
+      - name: Build PDF using Sphinx
+        run: |
+          # 假设文档源文件在 docs/ 目录下，构建输出到 docs/build
+          sphinx-build -b latexpdf docs docs/build
+          # 如果文档在根目录，则使用 sphinx-build -b latexpdf . build
+
+      - name: Upload PDF to Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: docs/build/latex/*.pdf   # 根据实际路径调整
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
