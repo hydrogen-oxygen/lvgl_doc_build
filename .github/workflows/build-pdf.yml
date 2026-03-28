@@ -27,12 +27,12 @@ jobs:
           sudo apt update
           sudo apt install -y texlive-latex-extra texlive-xetex latexmk
           # 若需要中文字体支持，可添加 texlive-lang-chinese
-          # sudo apt install -y texlive-lang-chinese
+          sudo apt install -y texlive-lang-chinese
 
       - name: Build PDF using Sphinx
         run: |
           # 假设文档源文件在 docs/ 目录下，构建输出到 docs/build
-          sphinx-build -b latexpdf docs docs/build
+          sphinx-build -b latexpdf docs/src docs/build
           # 如果文档在根目录，则使用 sphinx-build -b latexpdf . build
 
       - name: Upload PDF to Release
