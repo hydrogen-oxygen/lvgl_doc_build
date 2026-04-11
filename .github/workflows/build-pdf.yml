@@ -29,6 +29,12 @@ jobs:
           # 若需要中文字体支持，可添加 texlive-lang-chinese
           sudo apt install -y texlive-lang-chinese
 
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install breathe imagesize importlib-metadata sphinx-sitemap sphinxcontrib-applehelp sphinxcontrib-devhelp sphinxcontrib-htmlhelp sphinxcontrib-jsmath sphinxcontrib-qthelp sphinxcontrib-serializinghtml sphinxcontrib-mermaid==0.9.2 sphinx-copybutton sphinx-design typing-extensions sphinx-reredirects dirsync furo accessible-pygments
+          
       - name: Build PDF using Sphinx
         run: |
           # 假设文档源文件在 docs/ 目录下，构建输出到 docs/build
