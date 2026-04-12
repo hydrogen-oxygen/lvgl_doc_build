@@ -2,8 +2,8 @@ name: Build PDF and Upload to Release
 
 on:
   release:
-    types: [published]          # 当发布新 Release 时触发
-  workflow_dispatch:             # 允许手动触发（用于测试）
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build-pdf:
@@ -16,47 +16,42 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'           # 缓存 pip 依赖
-
-      - name: Install Python dependencies
-        run: |
-          pip install sphinx~=9.0.4 sphinx_rtd_theme   # 根据需要安装主题及其他扩展
+          cache: 'pip'
 
       - name: Install TeX Live
         run: |
           sudo apt update
           sudo apt install -y texlive-latex-extra texlive-xetex latexmk
-          # 若需要中文字体支持，可添加 texlive-lang-chinese
           sudo apt install -y texlive-lang-chinese
 
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
-          
-          # 首先安装 Sphinx
+          # 安装 Sphinx
           pip install sphinx~=9.0.4
-          
-          # 然后安装兼容 Sphinx 9.x 的 mermaid 扩展
-          # 最新版本 1.0.1 或更高版本已修复此问题
+          # 安装兼容 Sphinx 9.x 的 mermaid 扩展
           pip install sphinxcontrib-mermaid>=1.0.1
-          
-          # 安装其他必需的扩展
+          # 安装其他依赖
           pip install breathe imagesize importlib-metadata sphinx-sitemap sphinxcontrib-applehelp sphinxcontrib-devhelp sphinxcontrib-htmlhelp sphinxcontrib-jsmath sphinxcontrib-qthelp sphinxcontrib-serializinghtml sphinx-copybutton sphinx-design typing-extensions sphinx-reredirects dirsync furo accessible-pygments
-          
-          # 如果需要 RTD 主题
           pip install sphinx_rtd_theme
 
-          
       - name: Build PDF using Sphinx
         run: |
-          # 假设文档源文件在 docs/ 目录下，构建输出到 docs/build
-          sphinx-build -b latexpdf docs/src docs/build
-          # 如果文档在根目录，则使用 sphinx-build -b latexpdf . build
+          # 第一步：生成 LaTeX 文件
+          sphinx-build -b latex docs/src docs/build/latex
+          
+          # 第二步：编译 LaTeX 到 PDF
+          cd docs/build/latex && latexmk -xelatex -interaction=nonstopmode *.tex
+          
+          # 第三步：确保构建目录存在 PDF
+          mkdir -p docs/build
+          cp docs/build/latex/*.pdf docs/build/
 
       - name: Upload PDF to Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: docs/build/latex/*.pdf   # 根据实际路径调整
+          # 根据实际生成的 PDF 文件名调整路径
+          files: docs/build/*.pdf
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
