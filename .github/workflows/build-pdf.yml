@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install sphinx sphinx_rtd_theme   # 根据需要安装主题及其他扩展
+          pip install sphinx~=9.0.4 sphinx_rtd_theme   # 根据需要安装主题及其他扩展
 
       - name: Install TeX Live
         run: |
