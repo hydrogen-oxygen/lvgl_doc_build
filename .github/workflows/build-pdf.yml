@@ -29,11 +29,23 @@ jobs:
           # 若需要中文字体支持，可添加 texlive-lang-chinese
           sudo apt install -y texlive-lang-chinese
 
-
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
-          pip install breathe imagesize importlib-metadata sphinx-sitemap sphinxcontrib-applehelp sphinxcontrib-devhelp sphinxcontrib-htmlhelp sphinxcontrib-jsmath sphinxcontrib-qthelp sphinxcontrib-serializinghtml sphinxcontrib-mermaid==0.9.2 sphinx-copybutton sphinx-design typing-extensions sphinx-reredirects dirsync furo accessible-pygments
+          
+          # 首先安装 Sphinx
+          pip install sphinx~=9.0.4
+          
+          # 然后安装兼容 Sphinx 9.x 的 mermaid 扩展
+          # 最新版本 1.0.1 或更高版本已修复此问题
+          pip install sphinxcontrib-mermaid>=1.0.1
+          
+          # 安装其他必需的扩展
+          pip install breathe imagesize importlib-metadata sphinx-sitemap sphinxcontrib-applehelp sphinxcontrib-devhelp sphinxcontrib-htmlhelp sphinxcontrib-jsmath sphinxcontrib-qthelp sphinxcontrib-serializinghtml sphinx-copybutton sphinx-design typing-extensions sphinx-reredirects dirsync furo accessible-pygments
+          
+          # 如果需要 RTD 主题
+          pip install sphinx_rtd_theme
+
           
       - name: Build PDF using Sphinx
         run: |
